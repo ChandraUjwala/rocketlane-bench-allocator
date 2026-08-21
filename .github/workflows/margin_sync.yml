@@ -1,0 +1,32 @@
+name: Daily Margin Sync
+
+on:
+  schedule:
+    # Runs daily at 11:00 PM UTC
+    - cron: '0 23 * * *'
+  workflow_dispatch: # Allows manual trigger from the GitHub UI for testing
+
+jobs:
+  run-margin-sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run Margin Sync Script
+        env:
+          ROCKETLANE_API_KEY: ${{ secrets.ROCKETLANE_API_KEY }}
+          ACTUAL_MARGIN_FIELD_ID: ${{ secrets.ACTUAL_MARGIN_FIELD_ID }}
+          ESTIMATED_MARGIN_FIELD_ID: ${{ secrets.ESTIMATED_MARGIN_FIELD_ID }}
+        run: python margin_sync.py
