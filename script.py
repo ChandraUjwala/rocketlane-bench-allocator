@@ -35,18 +35,23 @@ users_to_bench = set()
 
 # 2. Extract users whose allocations end today and aren't already on RMG
 for alloc in allocations:
-    # Get project ID (handles both nested 'project' object or direct 'projectId')
-    proj_id = alloc.get("project", {}).get("id") or alloc.get("projectId")
+    # Safely retrieve Project ID
+    proj_id = alloc.get("projectId")
+    if isinstance(alloc.get("project"), dict):
+        proj_id = alloc.get("project").get("id") or proj_id
+
+    # Safely retrieve User ID
+    user_id = alloc.get("userId") or alloc.get("memberId")
     
-    # Extract user ID (handles both 'allocationFor' block or direct 'userId')
-    alloc_for = alloc.get("allocationFor", {})
-    user_id = alloc_for.get("member", {}).get("id") or alloc.get("userId")
-    
-    # Check if allocation type is for a TEAM_MEMBER / USER
-    alloc_type = alloc.get("allocationType") or alloc_for.get("type")
-    
+    alloc_for = alloc.get("allocationFor")
+    if isinstance(alloc_for, dict):
+        user_id = alloc_for.get("member", {}).get("id") or alloc_for.get("id") or user_id
+
+    # Filter out RMG project allocations and aggregate valid users
     if proj_id != RMG_PROJECT_ID and user_id:
         users_to_bench.add(user_id)
+
+print(f"Found {len(users_to_bench)} user(s) ending project allocations today.")
 
 # 3. Build bulk payload to allocate users to the RMG project starting tomorrow
 create_payload = []
