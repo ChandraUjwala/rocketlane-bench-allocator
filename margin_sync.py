@@ -40,7 +40,7 @@ print("Fetching projects from Rocketlane...")
 
 while True:
     params = {
-        "includeFields": "financials,metrics",
+        "includeFields": "metrics",
         "pageSize": 100
     }
     if next_page_token:
