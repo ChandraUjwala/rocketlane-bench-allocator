@@ -40,7 +40,7 @@ print("Fetching projects from Rocketlane...")
 
 while True:
     params = {
-        "includeFields": "metrics",
+        "includeFields": "financials,metrics",
         "pageSize": 100
     }
     if next_page_token:
@@ -78,7 +78,8 @@ for project in projects:
         continue
 
     project_id = project.get("projectId")
-    metrics = project.get("metrics") if isinstance(project.get("metrics"), dict) else {}
+    financials = project.get("financials") if isinstance(project.get("financials"), dict) else {}
+    metrics = financials.get("metrics") if isinstance(financials.get("metrics"), dict) else {}
 
     actual_margin = metrics.get("actualProfitMargin")
     estimated_margin = metrics.get("estimatedProfitMargin")
